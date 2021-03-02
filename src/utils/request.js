@@ -27,7 +27,7 @@ export const post = (url, data = {}) => {
 
 export const get = (url, params = {}) => {
   return new Promise((resolve, reject) => {
-    instance.get(url, params, {}).then(
+    instance.get(url, { params }).then(
       response => {
         resolve(response.data);
       },

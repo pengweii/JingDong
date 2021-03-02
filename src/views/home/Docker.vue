@@ -39,7 +39,7 @@ export default {
   width: 100%;
   height: 0.49rem;
   border-top: 1px solid $content-bgColor;
-  color: $content-fontcolor;
+  color: $content-fontColor;
   &__item {
     flex: 1; // WHY
     text-align: center;
