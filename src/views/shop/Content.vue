@@ -29,17 +29,17 @@
             class="product__number__minus"
             @click="
               () => {
-                changeCartItemInfo(shopId, item._id, item, -1);
+                changeCartItem(shopId, item._id, item, -1, shopName);
               }
             "
             >-</span
           >
-          {{ cartList?.[shopId]?.[item._id]?.count || 0 }}
+          {{ getProductCartCount(shopId, item._id) }}
           <span
             class="product__number__plus"
             @click="
               () => {
-                changeCartItemInfo(shopId, item._id, item, 1);
+                changeCartItem(shopId, item._id, item, 1, shopName);
               }
             "
             >+</span
@@ -51,8 +51,9 @@
 </template>
 
 <script>
-import { reactive, toRefs, ref, watchEffect } from "vue";
+import { reactive, ref, toRefs, watchEffect } from "vue";
 import { useRoute } from "vue-router";
+import { useStore } from "vuex";
 import { get } from "../../utils/request";
 import { useCommonCartEffect } from "./commonCartEffect";
 
@@ -62,7 +63,7 @@ const categories = [
   { name: "新鲜水果", tab: "fruit" }
 ];
 
-// 和tab切换相关的逻辑
+// Tab 切换相关的逻辑
 const useTabEffect = () => {
   const currentTab = ref(categories[0].tab);
   const handleTabClick = tab => {
@@ -74,7 +75,6 @@ const useTabEffect = () => {
 // 列表内容相关的逻辑
 const useCurrentListEffect = (currentTab, shopId) => {
   const content = reactive({ list: [] });
-
   const getContentData = async () => {
     const result = await get(`/api/shop/${shopId}/products`, {
       tab: currentTab.value
@@ -83,7 +83,6 @@ const useCurrentListEffect = (currentTab, shopId) => {
       content.list = result.data;
     }
   };
-
   watchEffect(() => {
     getContentData();
   });
@@ -91,22 +90,41 @@ const useCurrentListEffect = (currentTab, shopId) => {
   return { list };
 };
 
+// 购物车相关逻辑
+const useCartEffect = () => {
+  const store = useStore();
+  const { cartList, changeCartItemInfo } = useCommonCartEffect();
+  const changeShopName = (shopId, shopName) => {
+    store.commit("changeShopName", { shopId, shopName });
+  };
+  const changeCartItem = (shopId, productId, item, num, shopName) => {
+    changeCartItemInfo(shopId, productId, item, num);
+    changeShopName(shopId, shopName);
+  };
+  const getProductCartCount = (shopId, productId) => {
+    return cartList?.[shopId]?.productList?.[productId]?.count || 0;
+  };
+  return { cartList, changeCartItem, getProductCartCount };
+};
+
 export default {
   name: "Content",
+  props: ["shopName"],
   setup() {
     const route = useRoute();
     const shopId = route.params.id;
     const { currentTab, handleTabClick } = useTabEffect();
     const { list } = useCurrentListEffect(currentTab, shopId);
-    const { changeCartItemInfo, cartList } = useCommonCartEffect();
+    const { changeCartItem, cartList, getProductCartCount } = useCartEffect();
     return {
       categories,
       currentTab,
       handleTabClick,
       list,
       shopId,
-      changeCartItemInfo,
-      cartList
+      changeCartItem,
+      cartList,
+      getProductCartCount
     };
   }
 };

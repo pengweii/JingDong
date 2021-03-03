@@ -9,7 +9,7 @@
     </div>
     <!-- v-show="item.imgUrl"只有当图片加载后才显示，防止出现裂图 -->
     <ShopInfo :item="item" :hideBorder="true" v-show="item.imgUrl" />
-    <Content />
+    <Content :shopName="item.name" />
     <Cart />
   </div>
 </template>
