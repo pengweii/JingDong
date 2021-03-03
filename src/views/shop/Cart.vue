@@ -13,7 +13,7 @@
         >
           <span
             class="product__header__icon iconfont"
-            v-html="calculations.allChecked ? '&#xe652;' : '&#xe667;'"
+            v-html="calculations.allChecked ? '&#xe652;' : '&#xe615;'"
           >
           </span>
           全选
@@ -30,7 +30,7 @@
         <div class="product__item" v-if="item.count > 0">
           <div
             class="product__item__checked iconfont"
-            v-html="item.check ? '&#xe652;' : '&#xe667;'"
+            v-html="item.check ? '&#xe652;' : '&#xe615;'"
             @click="() => changeCartItemChecked(shopId, item._id)"
           />
           <img class="product__item__img" :src="item.imgUrl" />
@@ -95,12 +95,14 @@
 import { computed, ref } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
-import { useCommonCartEffect } from "./commonCartEffect";
+import { useCommonCartEffect } from "../../effects/cartEffects";
 
 // 获取购物车信息逻辑
 const useCartEffect = shopId => {
   const store = useStore();
-  const { cartList, changeCartItemInfo } = useCommonCartEffect();
+  const { cartList, productList, changeCartItemInfo } = useCommonCartEffect(
+    shopId
+  );
 
   const calculations = computed(() => {
     const productList = cartList[shopId]?.productList;
@@ -119,11 +121,6 @@ const useCartEffect = shopId => {
     }
     result.price = result.price.toFixed(2);
     return result;
-  });
-
-  const productList = computed(() => {
-    const productList = cartList[shopId]?.productList || [];
-    return productList;
   });
 
   const changeCartItemChecked = (shopId, productId) => {
